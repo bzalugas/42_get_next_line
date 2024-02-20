@@ -9,6 +9,7 @@ SCHEDULED: <2024-02-22 Thu>
 :END:
 ** CODE gnl function
 :LOGBOOK:
+CLOCK: [2024-02-20 Tue 16:35]
 CLOCK: [2024-02-20 Tue 12:50]--[2024-02-20 Tue 13:51] =>  1:01
 CLOCK: [2024-02-20 Tue 12:25]--[2024-02-20 Tue 12:49] =>  0:24
 :END:

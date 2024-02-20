@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/20 13:50:52 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/20 18:26:51 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,18 +47,21 @@ static char	*create_save_line(t_buffer *buf, t_buffer *last, char *remainder)
 	size_t		len;
 	char		*line;
 	t_buffer	*tmp;
+	char *start;
+	int len2;
 
-	len = BUFFER_SIZE + (BUFFER_SIZE * last->n - (last->nl - last->read));
-	line = (char *)ft_calloc(len, sizeof(char));
+	len = BUFFER_SIZE * last->n + (last->nl - last->read) + 1;
+	line = (char *)ft_calloc(len + 1, sizeof(char));
 	if (!line)
 		return (NULL);
 	while (buf)
 	{
-		ft_memcpy(line + buf->n * BUFFER_SIZE, buf->read, BUFFER_SIZE -
-				  (BUFFER_SIZE - (size_t)buf->nl));
+		start = line + buf->n * BUFFER_SIZE;
+		len2 = BUFFER_SIZE -((buf->read + BUFFER_SIZE) - buf->nl) + 1;
+		ft_memcpy(start, buf->read, len2);
 		tmp = buf->next;
 		if (buf->nl)
-			ft_memcpy(remainder, buf->nl, BUFFER_SIZE - (size_t)buf->nl);
+			ft_memcpy(remainder, buf->nl + 1, (buf->read + BUFFER_SIZE) - buf->nl);
 		if (buf->n > 0)
 			free(buf);
 		buf = tmp;
@@ -68,7 +71,7 @@ static char	*create_save_line(t_buffer *buf, t_buffer *last, char *remainder)
 
 char	*get_next_line(int fd)
 {
-	static char	remainder[BUFFER_SIZE + 1L][FD_MAX];
+	static char	remainder[FD_MAX][BUFFER_SIZE + 1L];
 	t_buffer	buf;
 	t_buffer	*last;
 	ssize_t		ret;
@@ -78,6 +81,8 @@ char	*get_next_line(int fd)
 		return (NULL);
 	buff_init(&buf);
 	//get remainder in buf
+	if (remainder[fd][0])
+		ft_memcpy(buf.read, remainder[fd], BUFFER_SIZE);
 	ret = read(fd, buf.read, BUFFER_SIZE);
 	last = &buf;
 	last->nl = ft_strchr(last->read,'\n');
