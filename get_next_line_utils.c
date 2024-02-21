@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 12:36:33 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/21 02:12:35 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/21 15:12:04 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,20 +25,23 @@ void	*ft_memset(void	*s, int c, size_t n)
 	return (s);
 }
 
-char	*ft_strchr(const char *s, int c)
+int		ft_find_nl(const char *s, char **nl)
 {
 	size_t	i;
+	int		c;
 
+	c = '\n';
 	i = 0;
 	while (s[i])
 	{
 		if ((unsigned char)c == (unsigned char)s[i])
-			return ((char *)&s[i]);
+			return (*nl = (char *)&s[i], 1);
 		i++;
 	}
+	*nl = (char *)&s[i];
 	if ((unsigned char)c == (unsigned char)s[i])
-		return ((char *)&s[i]);
-	return (NULL);
+		return (1);
+	return (0);
 }
 
 void	*ft_calloc(size_t nmemb, size_t size)
