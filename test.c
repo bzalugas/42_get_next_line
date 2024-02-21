@@ -6,7 +6,7 @@ int main()
 {
 	char *l;
 
-	int fd = open("quran.txt", O_RDONLY);
+	int fd = open("text.txt", O_RDONLY);
 	l = get_next_line(fd);
 	while (l)
 	{

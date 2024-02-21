@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:39 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/21 15:12:17 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/21 19:29:36 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,14 @@
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 4096
 # endif
-# define FD_MAX 512
+# define FD_MAX 4
 # include <unistd.h>
 # include <stdlib.h>
 # include <limits.h>
 
 typedef struct s_buffer
 {
-	char			read[BUFFER_SIZE + 1L];
+	char			*read;
 	char			*nl;
 	unsigned int	n;
 	struct s_buffer	*next;
