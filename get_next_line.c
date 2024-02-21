@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/21 22:31:17 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/21 23:00:36 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,12 +50,14 @@ static char	*get_remaining_line(char *remainder, t_buffer *buf)
 	size_t		len_nl;
 	t_buffer	*tmp;
 
-	if (!remainder)
+	if (!remainder || !remainder[0])
 	{
+		free(remainder);
 		buf = buf->next;
 		while (buf)
 		{
 			tmp = buf->next;
+			free(buf->read);
 			free(buf);
 			buf = tmp;
 		}
@@ -79,7 +81,7 @@ static char	*create_save_line(t_buffer *buf, t_buffer *last, char **remainder)
 	char		*line;
 	t_buffer	*tmp;
 
-	if (!*remainder)
+	if (!*remainder && last->nl[0] == '\n')
 		*remainder = (char *)ft_calloc(BUFFER_SIZE + 1UL, sizeof(char));
 	if (!*remainder)
 		return (get_remaining_line(NULL, buf));
@@ -97,8 +99,8 @@ static char	*create_save_line(t_buffer *buf, t_buffer *last, char **remainder)
 		tmp = buf->next;
 		if (buf->nl[0] == '\n')
 			ft_memmove(*remainder, buf->nl + 1UL, ft_strlen(buf->nl + 1UL));
-		if (buf->n > 0)
-			free(buf);
+		free(buf->read);
+		free(buf);
 		buf = tmp;
 	}
 	return (line);
@@ -129,6 +131,6 @@ char	*get_next_line(int fd)
 		found = ft_find_nl(last->read, &last->nl);
 	}
 	if (ret == -1 || (ret == 0 && last->n == 0 && !remainder[fd][0]))
-		return (get_remaining_line(NULL, buf));
+		return (get_remaining_line(remainder[fd], buf));
 	return (create_save_line(buf, last, &remainder[fd]));
 }
