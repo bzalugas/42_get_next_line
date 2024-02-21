@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/21 16:14:31 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/21 16:39:15 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static t_buffer	*buff_get_last(t_buffer *buf)
 	t_buffer	*tmp;
 
 	tmp = buf;
-	while(tmp && tmp->next)
+	while (tmp && tmp->next)
 		tmp = tmp->next;
 	return (tmp);
 }
@@ -54,7 +54,7 @@ static char	*create_save_line(t_buffer *buf, t_buffer *last, char *remainder)
 	while (buf)
 	{
 		ft_memmove(line + len_remain + buf->n * BUFFER_SIZE, buf->read,
-				   buf->nl - buf->read + 1);
+			buf->nl - buf->read + 1);
 		tmp = buf->next;
 		if (buf->nl[0] == '\n')
 			ft_memmove(remainder, buf->nl + 1, ft_strlen(buf->nl + 1));
@@ -96,7 +96,7 @@ static char	*get_remaining_line(char *remainder, t_buffer *buf)
 
 char	*get_next_line(int fd)
 {
-	static char	remainder[4][BUFFER_SIZE + 1L]; //Don't forget to change 4 by FD_MAX
+	static char	remainder[FD_MAX][BUFFER_SIZE + 1L];
 	t_buffer	buf;
 	t_buffer	*last;
 	ssize_t		ret;
@@ -112,9 +112,8 @@ char	*get_next_line(int fd)
 	found = ft_find_nl(last->read, &last->nl);
 	while (ret == BUFFER_SIZE && !found)
 	{
-		//Invert 2 lines to get protection
-		ret = read(fd, buff_get_new(&buf)->read, BUFFER_SIZE);
-		last = buff_get_last(&buf);
+		last = buff_get_new(&buf);
+		ret = read(fd, last->read, BUFFER_SIZE);
 		found = ft_find_nl(last->read, &last->nl);
 	}
 	if (ret == -1 || (ret == 0 && last->n == 0 && !remainder[fd][0]))
