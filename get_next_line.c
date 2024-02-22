@@ -6,99 +6,91 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/21 23:00:36 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/22 01:15:14 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static t_buffer	*buff_get_last(t_buffer *buf)
+static void	*clear_all(t_buffer *buf, char *remainder, char free_remain)
 {
 	t_buffer	*tmp;
 
-	tmp = buf;
-	while (tmp && tmp->next)
-		tmp = tmp->next;
-	return (tmp);
+	while (buf)
+	{
+		tmp = buf->next;
+		free(buf->read);
+		free(buf);
+		buf = tmp;
+	}
+	if (free_remain && remainder)
+		free(remainder);
+	return (NULL);
 }
 
-static t_buffer	*buff_get_new(t_buffer *buf)
+static t_buffer	*buff_get_new(t_buffer *last)
 {
 	t_buffer	*new;
-	t_buffer	*last;
 	char		*str;
 
-	new = (t_buffer *)ft_calloc(1, sizeof(t_buffer));
-	str = (char *)ft_calloc(BUFFER_SIZE + 1UL, sizeof(char));
+	new = (t_buffer *)ft_calloc_gnl(NULL, 1, sizeof(t_buffer));
+	str = (char *)ft_calloc_gnl(NULL, BUFFER_SIZE + 1UL, sizeof(char));
 	if (!new || !str)
 		return (free(new), free(str), NULL);
 	new->read = str;
 	new->nl = NULL;
 	new->next = NULL;
-	if (!buf)
+	if (!last)
 		return (new);
-	last = buff_get_last(buf);
 	last->next = new;
 	new->n = last->n + 1;
 	return (new);
 }
 
-static char	*get_remaining_line(char *remainder, t_buffer *buf)
+static char	*get_remaining_line(char *remain, t_buffer *buf)
 {
-	char		*line;
-	char		*nl;
-	size_t		len_nl;
-	t_buffer	*tmp;
+	char	*line;
+	size_t	len_remain;
+	size_t	len_nl;
 
-	if (!remainder || !remainder[0])
-	{
-		free(remainder);
-		buf = buf->next;
-		while (buf)
-		{
-			tmp = buf->next;
-			free(buf->read);
-			free(buf);
-			buf = tmp;
-		}
-		return (NULL);
-	}
-	nl = buf->nl;
-	line = (char *)ft_calloc((nl - remainder) + 2UL, sizeof(char));
-	if (!line)
-		return (NULL);
-	ft_memmove(line, remainder, nl - remainder + 1UL);
-	len_nl = ft_strlen(nl + 1UL);
-	ft_memmove(remainder, nl + 1UL, len_nl);
-	ft_memset(remainder + (size_t)len_nl, '\0', (size_t)BUFFER_SIZE - len_nl);
+	if (!remain || !*remain)
+		return (clear_all(buf, remain, 1));
+	len_remain = buf->nl - remain + 1;
+	if (!ft_calloc_gnl(&line, len_remain + 1UL, sizeof(char)))
+		return (clear_all(buf, remain, 1));
+	ft_memmove(line, remain, len_remain);
+	len_nl = ft_strlen(buf->nl + 1);
+	ft_memmove(remain, buf->nl + 1UL, len_nl);
+	ft_memset(remain + len_nl, '\0', BUFFER_SIZE - len_nl);
+	clear_all(buf, remain, 0);
 	return (line);
 }
 
-static char	*create_save_line(t_buffer *buf, t_buffer *last, char **remainder)
+static char	*create_save_line(t_buffer *buf, t_buffer *last, char **mem)
 {
-	size_t		len;
-	size_t		len_remain;
+	size_t		len_line;
+	size_t		len_mem;
 	char		*line;
+	size_t		i;
 	t_buffer	*tmp;
 
-	if (!*remainder && last->nl[0] == '\n')
-		*remainder = (char *)ft_calloc(BUFFER_SIZE + 1UL, sizeof(char));
-	if (!*remainder)
-		return (get_remaining_line(NULL, buf));
-	len_remain = ft_strlen(*remainder);
-	len = len_remain + BUFFER_SIZE * last->n + (last->nl - last->read) + 1;
-	line = (char *)ft_calloc(len + 1UL, sizeof(char));
-	if (!line)
-		return (get_remaining_line(NULL, buf));
-	ft_memmove(line, *remainder, len_remain);
-	ft_memset(*remainder, '\0', BUFFER_SIZE);
+	len_mem = ft_strlen(*mem);
+	len_line = len_mem + (last->n * BUFFER_SIZE) + (last->nl - last->read);
+	if (!ft_calloc_gnl(&line, len_line + *last->nl == '\n' + 1, sizeof(char)))
+		return (clear_all(buf, *mem, 1));
+	ft_memmove(line, *mem, len_mem);
+	ft_memset(*mem, '\0', BUFFER_SIZE);
 	while (buf)
 	{
-		ft_memmove(line + len_remain + buf->n * BUFFER_SIZE, buf->read,
-			buf->nl - buf->read + 1UL);
+		i = len_mem + (buf->n * BUFFER_SIZE);
+		ft_memmove(line + i, buf->read, buf->nl - buf->read + (*buf->nl == '\n'));
+		if (*buf->nl == '\n')
+		{
+			if (!*mem && !ft_calloc_gnl(mem, BUFFER_SIZE + 1UL, sizeof(char)))
+				return (clear_all(buf, *mem, 0));
+			ft_memmove(*mem, buf->nl + 1, ft_strlen(buf->nl + 1));
+		}
 		tmp = buf->next;
-		if (buf->nl[0] == '\n')
-			ft_memmove(*remainder, buf->nl + 1UL, ft_strlen(buf->nl + 1UL));
 		free(buf->read);
 		free(buf);
 		buf = tmp;
@@ -112,25 +104,25 @@ char	*get_next_line(int fd)
 	t_buffer	*buf;
 	t_buffer	*last;
 	ssize_t		ret;
-	int			found;
 
+	if (fd < 0 || read(fd, NULL, 0) < 0)
+		return (NULL);
 	buf = buff_get_new(NULL);
-	if (fd < 0 || read(fd, buf->read, 0) < 0 || !buf)
+	if (!buf)
 		return (NULL);
 	if (ft_find_nl(remainder[fd], &buf->nl) > 0)
 		return (get_remaining_line(remainder[fd], buf));
 	ret = read(fd, buf->read, BUFFER_SIZE);
 	last = buf;
-	found = ft_find_nl(last->read, &last->nl);
-	while (ret == BUFFER_SIZE && !found)
+	while (ret == BUFFER_SIZE && !ft_find_nl(last->read, &last->nl))
 	{
 		ret = -1;
-		last = buff_get_new(last);
+		last->next = buff_get_new(last);
+		last = last->next;
 		if (last)
 			ret = read(fd, last->read, BUFFER_SIZE);
-		found = ft_find_nl(last->read, &last->nl);
 	}
-	if (ret == -1 || (ret == 0 && last->n == 0 && !remainder[fd][0]))
-		return (get_remaining_line(remainder[fd], buf));
+	if (ret == -1 || (ret == 0 && last->n == 0))
+		return (clear_all(buf, remainder[fd], 1));
 	return (create_save_line(buf, last, &remainder[fd]));
 }
