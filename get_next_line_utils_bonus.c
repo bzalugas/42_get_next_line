@@ -32,7 +32,7 @@ int	ft_find_nl(const char *s, char **nl)
 	size_t	i;
 	int		c;
 
-	if (!s)
+	if (!s || !nl)
 		return (-1);
 	c = '\n';
 	i = 0;
