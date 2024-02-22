@@ -6,13 +6,13 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/22 11:09:41 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/22 12:12:02 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static void	*clear_all(t_buffer *buf, char *remainder, char free_remain)
+static void	*buff_clear(t_buffer *buf)
 {
 	t_buffer	*tmp;
 
@@ -23,8 +23,6 @@ static void	*clear_all(t_buffer *buf, char *remainder, char free_remain)
 		free(buf);
 		buf = tmp;
 	}
-	if (free_remain && remainder)
-		free(remainder);
 	return (NULL);
 }
 
@@ -53,54 +51,50 @@ static char	*get_remaining_line(char *remain, t_buffer *buf)
 	size_t	len_remain;
 	size_t	len_nl;
 
-	if (!remain || !*remain)
-		return (clear_all(buf, remain, 1));
-	len_remain = buf->nl - remain + 1;
+	if (!*remain)
+		return (buff_clear(buf));
+	len_remain = (buf->nl - remain) + 1UL;
 	if (!ft_calloc_gnl(&line, len_remain + 1UL, sizeof(char)))
-		return (clear_all(buf, remain, 1));
+		return (buff_clear(buf));
 	ft_memmove(line, remain, len_remain);
 	len_nl = ft_strlen(buf->nl + 1);
 	ft_memmove(remain, buf->nl + 1UL, len_nl);
 	ft_memset(remain + len_nl, '\0', BUFFER_SIZE - len_nl);
-	clear_all(buf, remain, 0);
+	buff_clear(buf);
 	return (line);
 }
 
-static char	*create_save_line(t_buffer *buf, t_buffer *last, char **mem)
+static char	*create_save_line(t_buffer *buf, t_buffer *last, char *mem)
 {
-	size_t		len_line;
+	size_t		len_l;
 	size_t		len_mem;
-	char		*line;
+	char		*l;
 	size_t		i;
 	t_buffer	*tmp;
 
-	len_mem = ft_strlen(*mem);
-	len_line = len_mem + (last->n * BUFFER_SIZE) + (last->nl - last->read);
-	if (!ft_calloc_gnl(&line, len_line + *last->nl == '\n' + 1, sizeof(char)))
-		return (clear_all(buf, *mem, 1));
-	ft_memmove(line, *mem, len_mem);
-	ft_memset(*mem, '\0', BUFFER_SIZE);
+	len_mem = ft_strlen(mem);
+	len_l = len_mem + (last->n * BUFFER_SIZE) + (last->nl - last->read);
+	if (!ft_calloc_gnl(&l, len_l + (*last->nl == '\n') + 1UL, sizeof(char)))
+		return (buff_clear(buf));
+	ft_memmove(l, mem, len_mem);
+	ft_memset(mem, '\0', BUFFER_SIZE);
 	while (buf)
 	{
 		i = len_mem + (buf->n * BUFFER_SIZE);
-		ft_memmove(line + i, buf->read, buf->nl - buf->read + (*buf->nl == '\n'));
+		ft_memmove(l + i, buf->read, buf->nl - buf->read + (*buf->nl == '\n'));
 		if (*buf->nl == '\n')
-		{
-			if (!*mem && !ft_calloc_gnl(mem, BUFFER_SIZE + 1UL, sizeof(char)))
-				return (clear_all(buf, *mem, 0));
-			ft_memmove(*mem, buf->nl + 1, ft_strlen(buf->nl + 1));
-		}
+			ft_memmove(mem, buf->nl + 1UL, ft_strlen(buf->nl + 1UL));
 		tmp = buf->next;
 		free(buf->read);
 		free(buf);
 		buf = tmp;
 	}
-	return (line);
+	return (l);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*remainder[FD_MAX];
+	static char	remainder[FD_MAX][BUFFER_SIZE + 1UL];
 	t_buffer	*buf;
 	t_buffer	*last;
 	ssize_t		ret;
@@ -122,7 +116,7 @@ char	*get_next_line(int fd)
 		if (last)
 			ret = read(fd, last->read, BUFFER_SIZE);
 	}
-	if (ret == -1 || (ret == 0 && last->n == 0))
-		return (clear_all(buf, remainder[fd], 1));
-	return (create_save_line(buf, last, &remainder[fd]));
+	if (ret == -1 || (ret == 0 && buf->n == 0 && *remainder[fd] == '\0'))
+		return (buff_clear(buf));
+	return (create_save_line(buf, last, remainder[fd]));
 }
