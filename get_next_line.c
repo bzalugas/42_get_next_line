@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/22 13:33:48 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/22 15:59:15 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,7 @@ char	*get_next_line(int fd)
 		if (last)
 			ret = read(fd, last->read, BUFF_SIZE);
 	}
-	if (ret == -1 || (ret == 0 && buf->n == 0 && *remainder[fd] == '\0'))
+	if (ret == -1 || (ret == 0 && !*buf->read && !*remainder[fd]))
 		return (buff_clear(buf));
 	return (create_save_line(buf, last, remainder[fd]));
 }
