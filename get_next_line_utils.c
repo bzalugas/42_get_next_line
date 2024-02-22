@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/20 12:36:33 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/22 01:00:24 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/22 17:11:45 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ int	ft_find_nl(const char *s, char **nl)
 	size_t	i;
 	int		c;
 
-	if (!s)
+	if (!s || !nl)
 		return (-1);
 	c = '\n';
 	i = 0;

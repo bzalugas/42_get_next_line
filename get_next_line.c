@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/22 16:32:05 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/22 17:12:39 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,16 +26,18 @@ static void	*buff_clear(t_buffer *buf)
 	return (NULL);
 }
 
-static t_buffer	*buff_get_new(t_buffer *last)
+static t_buffer	*buff_get_new(t_buffer *last, char alloc_read)
 {
 	t_buffer	*new;
-	char		*str;
+	char		*read;
 
 	new = (t_buffer *)ft_calloc_gnl(NULL, 1, sizeof(t_buffer));
-	str = (char *)ft_calloc_gnl(NULL, BUFFER_SIZE + 1UL, sizeof(char));
-	if (!new || !str)
-		return (free(new), free(str), NULL);
-	new->read = str;
+	read = NULL;
+	if (alloc_read)
+		read = (char *)ft_calloc_gnl(NULL, BUFFER_SIZE + 1UL, sizeof(char));
+	if (!new || (alloc_read && !read))
+		return (free(new), free(read), NULL);
+	new->read = read;
 	new->nl = NULL;
 	new->next = NULL;
 	if (!last)
@@ -51,7 +53,7 @@ static char	*get_remaining_line(char *remain, t_buffer *buf)
 	size_t	len_remain;
 	size_t	len_nl;
 
-	if (!*remain)
+	if (!*remain || !buf)
 		return (buff_clear(buf));
 	len_remain = (buf->nl - remain) + 1UL;
 	if (!ft_calloc_gnl(&line, len_remain + 1UL, sizeof(char)))
@@ -101,17 +103,17 @@ char	*get_next_line(int fd)
 
 	if (fd < 0 || read(fd, NULL, 0) < 0)
 		return (NULL);
-	buf = buff_get_new(NULL);
-	if (!buf)
-		return (NULL);
+	buf = buff_get_new(NULL, 0);
 	if (ft_find_nl(remainder, &buf->nl) > 0)
 		return (get_remaining_line(remainder, buf));
+	if (!ft_calloc_gnl(&buf->read, BUFFER_SIZE + 1UL, sizeof(char)))
+		return (NULL);
 	ret = read(fd, buf->read, BUFFER_SIZE);
 	last = buf;
 	while (!ft_find_nl(last->read, &last->nl) && ret == BUFFER_SIZE)
 	{
 		ret = -1;
-		last->next = buff_get_new(last);
+		last->next = buff_get_new(last, 1);
 		last = last->next;
 		if (last)
 			ret = read(fd, last->read, BUFFER_SIZE);
@@ -127,7 +129,7 @@ int main()
 {
 	char *l;
 
-	int fd = open("text.txt", O_RDONLY);
+	int fd = open("multiple_nlx5", O_RDONLY);
 	l = get_next_line(fd);
 	while (l)
 	{
