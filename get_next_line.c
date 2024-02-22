@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/22 16:18:35 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/22 16:32:05 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ static char	*create_save_line(t_buffer *buf, t_buffer *last, char *mem)
 
 char	*get_next_line(int fd)
 {
-	static char	remainder[FD_MAX][BUFFER_SIZE + 1UL];
+	static char	remainder[BUFFER_SIZE + 1UL];
 	t_buffer	*buf;
 	t_buffer	*last;
 	ssize_t		ret;
@@ -104,8 +104,8 @@ char	*get_next_line(int fd)
 	buf = buff_get_new(NULL);
 	if (!buf)
 		return (NULL);
-	if (ft_find_nl(remainder[fd], &buf->nl) > 0)
-		return (get_remaining_line(remainder[fd], buf));
+	if (ft_find_nl(remainder, &buf->nl) > 0)
+		return (get_remaining_line(remainder, buf));
 	ret = read(fd, buf->read, BUFFER_SIZE);
 	last = buf;
 	while (!ft_find_nl(last->read, &last->nl) && ret == BUFFER_SIZE)
@@ -116,9 +116,9 @@ char	*get_next_line(int fd)
 		if (last)
 			ret = read(fd, last->read, BUFFER_SIZE);
 	}
-	if (ret == -1 || (ret == 0 && !*buf->read && !*remainder[fd]))
+	if (ret == -1 || (ret == 0 && !*buf->read && !*remainder))
 		return (buff_clear(buf));
-	return (create_save_line(buf, last, remainder[fd]));
+	return (create_save_line(buf, last, remainder));
 }
 
 /*#include <stdio.h>
