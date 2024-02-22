@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 16:06:51 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/22 16:06:56 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/22 16:16:20 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,3 +120,29 @@ char	*get_next_line(int fd)
 		return (buff_clear(buf));
 	return (create_save_line(buf, last, remainder[fd]));
 }
+
+/*#include <stdio.h>
+#include <fcntl.h>
+#include <stdio.h>
+int main()
+{
+	char *l;
+	char *l2;
+
+	int fd = open("text.txt", O_RDONLY);
+	int fd2 = open("text2.txt", O_RDONLY);
+	l = get_next_line(fd);
+	l2 = get_next_line(fd2);
+	while (l || l2)
+	{
+		printf("file1: %s\n", l);
+		printf("file2: %s\n", l2);
+		free(l);
+		free(l2);
+		l = get_next_line(fd);
+		l2 = get_next_line(fd2);
+	}
+	close(fd);
+	close(fd2);
+	return 0;
+}*/
