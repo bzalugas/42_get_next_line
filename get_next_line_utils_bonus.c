@@ -5,17 +5,19 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/02/21 19:06:48 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/21 19:07:19 by bazaluga         ###   ########.fr       */
+/*   Created: 2024/02/22 16:06:42 by bazaluga          #+#    #+#             */
+/*   Updated: 2024/02/22 16:06:46 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line_bonus.h"
+#include "get_next_line.h"
 
 void	*ft_memset(void	*s, int c, size_t n)
 {
 	size_t	i;
 
+	if (!s)
+		return (NULL);
 	i = 0;
 	while (i < n)
 	{
@@ -46,7 +48,7 @@ int	ft_find_nl(const char *s, char **nl)
 	return (0);
 }
 
-void	*ft_calloc(size_t nmemb, size_t size)
+void	*ft_calloc_gnl(char **dst, size_t nmemb, size_t size)
 {
 	unsigned char	*ptr;
 	size_t			i;
@@ -54,6 +56,8 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	if (size > 0 && nmemb > ULONG_MAX / size)
 		return (NULL);
 	ptr = (unsigned char *)malloc(nmemb * size);
+	if (dst)
+		*dst = (char *)ptr;
 	if (!ptr)
 		return (NULL);
 	i = 0;
@@ -69,6 +73,8 @@ void	*ft_memmove(void *dst, const void *src, size_t n)
 {
 	size_t	i;
 
+	if (!dst || !src)
+		return (NULL);
 	if (src < dst)
 	{
 		i = n;
@@ -95,7 +101,7 @@ size_t	ft_strlen(const char *s)
 	size_t	i;
 
 	i = 0;
-	while (s[i])
+	while (s && s[i])
 		i++;
 	return (i);
 }
