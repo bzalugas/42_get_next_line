@@ -6,11 +6,11 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 16:06:42 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/22 16:06:46 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/27 14:21:54 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "get_next_line.h"
+#include "get_next_line_bonus.h"
 
 void	*ft_memset(void	*s, int c, size_t n)
 {

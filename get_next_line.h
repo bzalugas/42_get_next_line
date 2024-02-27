@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:39 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/22 16:08:19 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/02/27 14:20:56 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 4095
 # endif
-# define FD_MAX 512
 # include <unistd.h>
 # include <stdlib.h>
 # include <limits.h>
