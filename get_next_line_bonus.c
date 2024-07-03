@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/22 16:06:51 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/02/27 14:38:03 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/07/03 18:05:18 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,7 @@ char	*get_next_line(int fd)
 		return (NULL);
 	ret = read(fd, buf->read, BUFFER_SIZE);
 	last = buf;
-	while (ret == BUFFER_SIZE && !ft_find_nl(last->read, &last->nl))
+	while (!ft_find_nl(last->read, &last->nl) && ret == BUFFER_SIZE)
 	{
 		ret = -1;
 		last->next = buff_get_new(last, 1);
