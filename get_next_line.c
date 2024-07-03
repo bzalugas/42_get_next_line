@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:21:21 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/07/03 15:24:59 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/07/03 17:52:51 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ int	alloc_buf(t_gnl_buf *buf, char *stash)
 		tmp = buf->arr;
 		buf->len *= 2;
 	}
-	buf->arr = (char *)ft_calloc(buf->len, sizeof(char));
+	buf->arr = (char *)ft_calloc(buf->len + 1, sizeof(char));
 	if (!buf->arr)
 		return (-1);
 	if (!tmp)
@@ -53,6 +53,8 @@ int	alloc_buf(t_gnl_buf *buf, char *stash)
 	i = 0;
 	while (tmp[i++])
 		buf->arr[i - 1] = tmp[i - 1];
+	if (!stash)
+		free(tmp);
 	if (stash && stash[0])
 		return (alloc_buf(buf, NULL));
 	return (0);
@@ -65,13 +67,13 @@ char	*get_the_line(char **line, char *str, size_t *i, char get_nl)
 	*i = 0;
 	while(str && str[*i] && str[*i] != '\n')
 		(*i)++;
-	if (!str[*i] && get_nl)
+	if ((!str[*i] && (get_nl || *i == 0)))
 		return (*line = NULL, NULL);
-	*line = (char *)ft_calloc((*i) + 2, sizeof(char));
+	*line = (char *)ft_calloc((*i) + (str[*i] == '\n') + 1, sizeof(char));
 	if (!*line)
 		return (NULL);
 	j = 0;
-	while (j < *i + get_nl)
+	while (j < *i + (str[*i] == '\n'))
 	{
 		(*line)[j] = str[j];
 		j++;
@@ -90,13 +92,16 @@ char	*end_gnl(t_gnl_buf *buf, char *line, char *stash)
 {
 	size_t	i;
 
-	i = 0;
-	while (buf->arr[i])
+	if (buf->len > 0)
 	{
-		stash[i] = buf->arr[i];
-		i++;
+		i = 0;
+		while (buf->arr[i])
+		{
+			stash[i] = buf->arr[i];
+			i++;
+		}
+		stash[i] = 0;
 	}
-	stash[i] = 0;
 	free(buf->arr);
 	return (line);
 }
@@ -112,10 +117,10 @@ char	*get_next_line(int fd)
 	if (read(fd, NULL, 0) == -1)
 		return (NULL);
 	buf = (t_gnl_buf){0, NULL};
+	if (get_the_line(&line, stash, &nl, 1))
+		return (end_gnl(&buf, line, stash));
 	if (alloc_buf(&buf, stash) == -1)
 		return (NULL);
-	if (get_the_line(&line, buf.arr, &nl, 1))
-		return (end_gnl(&buf, line, stash));
 	res = read(fd, &buf.arr[nl], BUFFER_SIZE);
 	while (res == BUFFER_SIZE && !get_the_line(&line, buf.arr, &nl, 1))
 	{
@@ -130,7 +135,5 @@ char	*get_next_line(int fd)
 	}
 	if (line)
 		return (end_gnl(&buf, line, stash));
-	if (!get_the_line(&line, buf.arr, &nl, 0))
-		return (NULL);
 	return (end_gnl(&buf, line, stash));
 }
