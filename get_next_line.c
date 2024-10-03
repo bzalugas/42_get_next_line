@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:33:32 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/07/03 18:04:44 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/10/03 15:34:22 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,9 +101,9 @@ char	*get_next_line(int fd)
 	t_buffer	*last;
 	ssize_t		ret;
 
-	if (fd < 0 || read(fd, NULL, 0) < 0)
-		return (NULL);
 	buf = buff_get_new(NULL, 0);
+	if (fd < 0 || read(fd, NULL, 0) < 0 || !buf)
+		return (NULL);
 	if (ft_find_nl(remainder, &buf->nl) > 0)
 		return (get_remaining_line(remainder, buf));
 	if (!ft_calloc_gnl(&buf->read, BUFFER_SIZE + 1UL, sizeof(char)))
