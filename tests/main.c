@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 12:01:19 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/07/03 15:15:59 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/11/06 10:13:10 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,17 +30,14 @@ int	main(int ac, char *av[])
 		fd = STDIN_FILENO;
 	else
 		fd = open(av[1], O_RDONLY);
-	if (fd == -1)
-	{
-		printf("error opening %s\n", av[1]);
-		return (1);
-	}
+	int i = 0;
 	line = get_next_line(fd);
 	while (line)
 	{
-		printf("%s", line);
+		printf("%d: %s", i, line);
 		free(line);
 		line = get_next_line(fd);
+		i++;
 	}
 	close(fd);
 	return (0);

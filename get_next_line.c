@@ -6,7 +6,7 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:21:21 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/07/03 17:52:51 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/11/06 10:03:41 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,13 +108,13 @@ char	*end_gnl(t_gnl_buf *buf, char *line, char *stash)
 
 char	*get_next_line(int fd)
 {
-	static char	stash[STASH_SIZE] = (char[STASH_SIZE]){0};
+	static char	stash[STASH_SIZE];
 	t_gnl_buf	buf;
 	char		*line;
 	size_t		nl;
 	int			res;
 
-	if (read(fd, NULL, 0) == -1)
+	if (fd < 0 || read(fd, NULL, 0) == -1)
 		return (NULL);
 	buf = (t_gnl_buf){0, NULL};
 	if (get_the_line(&line, stash, &nl, 1))
