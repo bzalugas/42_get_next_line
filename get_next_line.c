@@ -6,12 +6,11 @@
 /*   By: bazaluga <bazaluga@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/03 10:21:21 by bazaluga          #+#    #+#             */
-/*   Updated: 2024/11/06 13:04:53 by bazaluga         ###   ########.fr       */
+/*   Updated: 2024/11/07 08:26:43 by bazaluga         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <unistd.h>
 
 char	*ft_strdup(char *s)
 {
@@ -36,7 +35,7 @@ char	*ft_strdup(char *s)
 
 char	*get_next_line(int fd)
 {
-	static char	stash[BUFFER_SIZE];
+	static char	stash[BUFFER_SIZE + 1L];
 	char		line[100000];
 	static int	i_stash;
 	static int	len_read;
@@ -52,8 +51,8 @@ char	*get_next_line(int fd)
 			len_read = read(fd, stash, BUFFER_SIZE);
 			i_stash = 0;
 			if (len_read <= 0)
-				break;
-			stash[len_read - 1] = 0;
+				break ;
+			stash[len_read] = 0;
 		}
 		line[i++] = stash[i_stash++];
 		if (line[i - 1] == '\n')
